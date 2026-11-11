@@ -2,7 +2,17 @@
 
 Desktop pilot for manual browsing in separate Google Chrome profiles, with optional per-profile proxy routing. It uses installed Chrome Stable for browsing and Electron for the workspace UI.
 
-## Run on Windows or macOS
+## Install a release
+
+Download a package from [GitHub Releases](https://github.com/rockaxx/profile-desk/releases). Install Google Chrome Stable before opening Profile Desk.
+
+- **Windows x64** — extract the entire ZIP and open **Profile Desk.exe**.
+- **Mac with Apple Silicon** — open the **macos-arm64.dmg** and drag **Profile Desk** to **Applications**.
+- **Mac with Intel** — use the **macos-x64.dmg**.
+
+Release packages include Electron. Windows builds have no publisher signature. Mac builds are signed ad hoc and lack Apple notarization. Your system may prompt for approval.
+
+## Run from source
 
 Install Node.js 22.12 or newer and Google Chrome Stable. On macOS, place Chrome in Applications.
 

@@ -1,0 +1,114 @@
+name: Desktop packages
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Package ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: windows-x64
+            runner: windows-2025
+            platform: win32
+            arch: x64
+          - target: macos-arm64
+            runner: macos-15
+            platform: darwin
+            arch: arm64
+          - target: macos-x64
+            runner: macos-15-intel
+            platform: darwin
+            arch: x64
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Verify release version
+        shell: bash
+        run: test "$GITHUB_REF_NAME" = "v$(node -p "require('./package.json').version")"
+      - run: npm ci
+      - run: npm test
+      - name: Package Electron app
+        run: npm run package -- --platform=${{ matrix.platform }} --arch=${{ matrix.arch }}
+      - name: Verify and archive Windows app
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $bundle = Join-Path $PWD 'dist/Profile Desk-win32-x64'
+          $exe = Join-Path $bundle 'Profile Desk.exe'
+          if (-not (Test-Path -LiteralPath (Join-Path $bundle 'resources/app.asar'))) {
+            throw 'Packaged app.asar is missing.'
+          }
+          $process = Start-Process -FilePath $exe -WindowStyle Hidden -PassThru
+          try {
+            if ($process.WaitForExit(6000)) { throw "App exited during launch ($($process.ExitCode))." }
+          } finally {
+            if (-not $process.HasExited) { Stop-Process -Id $process.Id }
+          }
+          New-Item -ItemType Directory -Path release | Out-Null
+          $archive = "release/Profile-Desk-$env:GITHUB_REF_NAME-windows-x64.zip"
+          Compress-Archive -LiteralPath $bundle -DestinationPath $archive
+          $entries = tar -tf $archive
+          if ($LASTEXITCODE -ne 0 -or 'Profile Desk-win32-x64/Profile Desk.exe' -notin $entries) {
+            throw 'Release ZIP is missing Profile Desk.exe.'
+          }
+      - name: Verify and archive macOS app
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: |
+          bundle="dist/Profile Desk-darwin-$TARGET_ARCH/Profile Desk.app"
+          exe="$bundle/Contents/MacOS/Profile Desk"
+          test -f "$bundle/Contents/Resources/app.asar"
+          if [ "$TARGET_ARCH" = x64 ]; then
+            lipo -verify_arch x86_64 "$exe"
+          else
+            lipo -verify_arch "$TARGET_ARCH" "$exe"
+          fi
+          # Ad hoc signing preserves bundle integrity without a Developer ID certificate.
+          codesign --force --deep --sign - "$bundle"
+          codesign --verify --deep --strict "$bundle"
+          "$exe" > "$RUNNER_TEMP/profile-desk.log" 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          sleep 6
+          if ! kill -0 "$app_pid" 2>/dev/null; then
+            cat "$RUNNER_TEMP/profile-desk.log"
+            exit 1
+          fi
+          kill "$app_pid"
+          wait "$app_pid" || true
+          trap - EXIT
+
+          staging="$RUNNER_TEMP/profile-desk-dmg"
+          mkdir -p release "$staging"
+          ditto "$bundle" "$staging/Profile Desk.app"
+          ln -s /Applications "$staging/Applications"
+          image="release/Profile-Desk-$GITHUB_REF_NAME-macos-$TARGET_ARCH.dmg"
+          for attempt in 1 2 3; do
+            if hdiutil create -volname 'Profile Desk' -srcfolder "$staging" -ov -format UDZO "$image"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            sleep 3
+          done
+          hdiutil verify "$image"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: profile-desk-${{ matrix.target }}
+          path: release/*
+          compression-level: 0
+          if-no-files-found: error
