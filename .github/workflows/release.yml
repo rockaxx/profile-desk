@@ -84,9 +84,9 @@ jobs:
           exe="$bundle/Contents/MacOS/Profile Desk"
           test -f "$bundle/Contents/Resources/app.asar"
           if [ "$TARGET_ARCH" = x64 ]; then
-            lipo -verify_arch x86_64 "$exe"
+            lipo "$exe" -verify_arch x86_64
           else
-            lipo -verify_arch "$TARGET_ARCH" "$exe"
+            lipo "$exe" -verify_arch "$TARGET_ARCH"
           fi
           # Ad hoc signing preserves bundle integrity without a Developer ID certificate.
           codesign --force --deep --sign - "$bundle"
