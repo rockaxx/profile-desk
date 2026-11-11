@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile Desk</title>
+  <link rel="stylesheet" href="../node_modules/@tabler/core/dist/css/tabler.min.css">
+  <link rel="stylesheet" href="../node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="../node_modules/@fontsource-variable/inter/index.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="renderer.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark"><i class="ti ti-stack-2" aria-hidden="true"></i></span><span>Profile Desk</span></div>
+    <nav aria-label="Workspace">
+      <button type="button" class="nav-item selected" data-view="profiles" aria-current="page"><i class="ti ti-browser" aria-hidden="true"></i> Profiles</button>
+      <button type="button" class="nav-item" data-view="connections"><i class="ti ti-route" aria-hidden="true"></i> Connections</button>
+    </nav>
+    <div class="sidebar-footer"><i class="ti ti-device-desktop" aria-hidden="true"></i><div>Local workspace<small>Profiles stored on this device</small></div></div>
+  </aside>
+  <main>
+    <header class="topbar">
+      <div class="crumb">Workspace <i class="ti ti-chevron-right" aria-hidden="true"></i> <span id="crumb-view">Profiles</span></div>
+      <div id="chrome-state" class="engine"><span class="dot"></span><span id="chrome-label">Checking Chrome</span></div>
+    </header>
+    <div class="content">
+      <div class="page-heading">
+        <div><h1 id="heading">Browser profiles</h1><p id="description">Separate Chrome sessions for each client and project.</p></div>
+        <button type="button" class="btn btn-primary new-button" id="new-profile"><i class="ti ti-plus" aria-hidden="true"></i> New profile</button>
+      </div>
+      <section class="overview" aria-label="Workspace overview">
+        <div class="summary"><div class="summary-icon moss"><i class="ti ti-browser" aria-hidden="true"></i></div><div><span>Profiles</span><strong id="count-profiles">0</strong></div></div>
+        <div class="summary"><div class="summary-icon amber"><i class="ti ti-player-play" aria-hidden="true"></i></div><div><span>Open sessions</span><strong id="count-running">0</strong></div></div>
+        <div class="summary"><div class="summary-icon blue"><i class="ti ti-route" aria-hidden="true"></i></div><div><span>Proxy profiles</span><strong id="count-proxies">0</strong></div></div>
+      </section>
+      <section class="card profile-card" aria-labelledby="table-heading">
+        <div class="card-header toolbar">
+          <h2 id="table-heading">All profiles</h2>
+          <label class="search"><i class="ti ti-search" aria-hidden="true"></i><input type="search" placeholder="Search profiles" id="search" aria-label="Search profiles"></label>
+        </div>
+        <div class="table-responsive" id="table-wrap" hidden>
+          <table class="table table-vcenter card-table">
+            <thead><tr><th>Profile</th><th>Connection</th><th>Last check</th><th class="text-end">Actions</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="empty">
+          <div class="empty-icon"><i class="ti ti-folders" aria-hidden="true"></i></div>
+          <h3 id="empty-title">Create your first profile</h3>
+          <p id="empty-description">Give a client or project its own Chrome session.</p>
+          <button type="button" class="btn btn-outline-primary" id="empty-create"><i class="ti ti-plus" aria-hidden="true"></i> Add profile</button>
+        </div>
+      </section>
+      <p class="footnote"><i class="ti ti-info-circle" aria-hidden="true"></i> IP checks use ipify through the configured connection.</p>
+    </div>
+  </main>
+  <dialog id="editor" aria-labelledby="editor-title">
+    <form id="profile-form">
+      <div class="dialog-head"><div><h2 id="editor-title">New profile</h2><p>Configure a separate Chrome session.</p></div><button type="button" class="icon-button" id="dismiss" aria-label="Close"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+      <div class="dialog-body">
+        <label class="form-label" for="name">Profile name</label>
+        <input class="form-control" id="name" name="name" maxlength="100" placeholder="e.g. Studio North" required>
+        <label class="form-label" for="scheme">Connection</label>
+        <select class="form-select" id="scheme" name="scheme">
+          <option value="direct">Direct connection</option>
+          <option value="http">HTTP proxy</option>
+          <option value="https">HTTPS proxy</option>
+          <option value="socks5">SOCKS5 proxy</option>
+        </select>
+        <div id="proxy-fields" hidden>
+          <div class="field-grid">
+            <label class="form-label">Host<input class="form-control" name="host" placeholder="proxy.example.com"></label>
+            <label class="form-label">Port<input class="form-control" name="port" type="number" min="1" max="65535" placeholder="8080"></label>
+          </div>
+          <div class="field-grid credentials">
+            <label class="form-label">Username<input class="form-control" name="username" autocomplete="off" placeholder="Optional"></label>
+            <label class="form-label">Password<input class="form-control" name="password" type="password" autocomplete="new-password" placeholder="Optional"></label>
+          </div>
+          <label class="form-check" id="clear-wrap" hidden><input class="form-check-input" name="clearPassword" type="checkbox"><span class="form-check-label">Remove saved proxy password</span></label>
+        </div>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+      </div>
+      <footer class="dialog-footer"><button type="button" class="btn" id="cancel">Cancel</button><button type="submit" class="btn btn-primary" id="save">Save profile</button></footer>
+    </form>
+  </dialog>
+  <dialog id="remove-dialog" aria-labelledby="remove-title">
+    <form method="dialog">
+      <div class="dialog-head"><div><h2 id="remove-title">Remove profile?</h2><p id="remove-message"></p></div></div>
+      <footer class="dialog-footer"><button class="btn" value="cancel" autofocus>Cancel</button><button class="btn btn-danger" value="remove">Remove profile</button></footer>
+    </form>
+  </dialog>
+  <div id="toast" class="notice" role="status" hidden></div>
+</body>
+</html>

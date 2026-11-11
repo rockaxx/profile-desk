@@ -1,0 +1,28 @@
+{
+  "name": "profile-desk",
+  "productName": "Profile Desk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome profiles and proxy diagnostics for marketing teams",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "package": "electron-packager . \"Profile Desk\" --out=dist --overwrite --prune=true --ignore=\"^/(test|dist)(/|$)\""
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@tabler/core": "1.7.4",
+    "@tabler/icons-webfont": "3.51.0",
+    "proxy-chain": "3.0.3",
+    "undici": "7.30.2"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "45.3.0"
+  },
+  "overrides": {
+    "glob": "14.0.4",
+    "minimatch": "11.0.8"
+  }
+}
