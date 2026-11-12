@@ -80,6 +80,69 @@
           </div>
           <label class="form-check" id="clear-wrap" hidden><input class="form-check-input" name="clearPassword" type="checkbox"><span class="form-check-label">Remove saved proxy password</span></label>
         </div>
+        <details class="advanced" id="advanced">
+          <summary><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Advanced</summary>
+          <div class="advanced-fields">
+            <div class="host-os"><span>Host operating system</span><strong id="host-os"></strong></div>
+            <label class="form-label" for="notes">Profile note</label>
+            <textarea class="form-control" id="notes" name="notes" rows="2" maxlength="2000" placeholder="Optional"></textarea>
+            <label class="form-label" for="startup-urls">Startup tabs</label>
+            <textarea class="form-control" id="startup-urls" name="startupUrls" rows="2" maxlength="20500" placeholder="https://example.com/" aria-describedby="startup-help"></textarea>
+            <small id="startup-help" class="meta">One HTTP or HTTPS address per line, up to 10.</small>
+            <label class="form-label" for="window-preset">Chrome window size</label>
+            <select class="form-select" id="window-preset" name="windowPreset" aria-describedby="window-help">
+              <option value="default">Chrome default</option>
+              <option value="desktop">Desktop · 1280 × 800</option>
+              <option value="tablet">Tablet layout · 820 × 980</option>
+              <option value="mobile">Phone layout · 430 × 900</option>
+              <option value="custom">Custom size</option>
+            </select>
+            <small id="window-help" class="meta">Requests a window size on the host OS for layout checks.</small>
+            <div class="field-grid credentials" id="custom-size" hidden>
+              <label class="form-label">Width<input class="form-control" name="windowWidth" type="number" min="360" max="7680" placeholder="1280"></label>
+              <label class="form-label">Height<input class="form-control" name="windowHeight" type="number" min="360" max="4320" placeholder="800"></label>
+            </div>
+            <label class="form-label" for="scale-factor">Device scale factor</label>
+            <input class="form-control" id="scale-factor" name="scaleFactor" type="number" min="0.5" max="4" step="any" placeholder="Chrome default">
+            <label class="form-label" for="browser-language">Primary web language</label>
+            <input class="form-control" id="browser-language" name="browserLanguage" maxlength="80" placeholder="e.g. sk-SK">
+            <label class="form-label" for="preferred-languages">Preferred web languages</label>
+            <input class="form-control" id="preferred-languages" name="preferredLanguages" maxlength="500" placeholder="e.g. sk, en-US">
+            <label class="form-label" for="webrtc-policy">WebRTC IP handling</label>
+            <select class="form-select" id="webrtc-policy" name="webRtcPolicy">
+              <option value="chrome-default">Chrome profile default</option>
+              <option value="default_public_interface_only">Default public interface only</option>
+              <option value="disable_non_proxied_udp">Disable non-proxied UDP</option>
+            </select>
+            <label class="form-label" for="location-permission">Default location permission</label>
+            <select class="form-select" id="location-permission" name="locationPermission">
+              <option value="chrome-default">Chrome profile default</option>
+              <option value="ask">Ask</option>
+              <option value="block">Block</option>
+            </select>
+            <small class="meta">Site-specific permissions may take precedence.</small>
+            <label class="form-label" for="graphics-privacy">Graphics privacy</label>
+            <select class="form-select" id="graphics-privacy" name="graphicsPrivacy">
+              <option value="chrome-default">Chrome default</option>
+              <option value="block-webgl">Block WebGL</option>
+              <option value="block-canvas-readback">Block Canvas readback</option>
+              <option value="block-both">Block WebGL and Canvas readback</option>
+            </select>
+            <small class="meta">Blocking graphics APIs or pixel readback can break some pages.</small>
+            <fieldset class="qa-settings">
+              <legend>Local QA overrides</legend>
+              <p class="meta">Applied only to the local test page opened by Diagnostics.</p>
+              <label class="form-label" for="qa-user-agent">Test User-Agent</label>
+              <input class="form-control" id="qa-user-agent" name="qaUserAgent" maxlength="512" placeholder="Chrome default">
+              <label class="form-label" for="qa-time-zone">Test time zone</label>
+              <input class="form-control" id="qa-time-zone" name="qaTimezone" maxlength="80" placeholder="System time zone · e.g. Europe/Bratislava">
+              <div class="field-grid credentials">
+                <label class="form-label">Test latitude<input class="form-control" name="qaLatitude" type="number" min="-90" max="90" step="any" placeholder="Optional"></label>
+                <label class="form-label">Test longitude<input class="form-control" name="qaLongitude" type="number" min="-180" max="180" step="any" placeholder="Optional"></label>
+              </div>
+            </fieldset>
+          </div>
+        </details>
         <p class="form-error" id="form-error" role="alert" hidden></p>
       </div>
       <footer class="dialog-footer"><button type="button" class="btn" id="cancel">Cancel</button><button type="submit" class="btn btn-primary" id="save">Save profile</button></footer>
@@ -89,6 +152,96 @@
     <form method="dialog">
       <div class="dialog-head"><div><h2 id="remove-title">Remove profile?</h2><p id="remove-message"></p></div></div>
       <footer class="dialog-footer"><button class="btn" value="cancel" autofocus>Cancel</button><button class="btn btn-danger" value="remove">Remove profile</button></footer>
+    </form>
+  </dialog>
+  <dialog id="diagnostics" aria-labelledby="diagnostics-title">
+    <div class="dialog-head">
+      <div><h2 id="diagnostics-title">Network &amp; Privacy Diagnostics</h2><p id="diagnostics-profile"></p></div>
+      <button type="button" class="icon-button" id="diagnostics-close" aria-label="Close diagnostics"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="dialog-body" aria-live="polite">
+      <p class="meta" id="diagnostics-status"></p>
+      <dl class="diagnostics-grid" id="diagnostics-rows"></dl>
+    </div>
+  </dialog>
+  <dialog id="android" aria-labelledby="android-title">
+    <form id="android-form">
+      <div class="android-header">
+        <div class="android-identity">
+          <span class="android-mark"><i class="ti ti-device-mobile" aria-hidden="true"></i></span>
+          <div><h2 id="android-title">Android</h2><p id="android-profile"></p></div>
+        </div>
+        <div class="android-header-actions">
+          <button type="button" class="btn android-stop" id="android-stop" hidden><i class="ti ti-player-stop" aria-hidden="true"></i> Stop Android</button>
+          <button type="button" class="icon-button" id="android-dismiss" aria-label="Close Android panel" title="Close Android panel"><i class="ti ti-x" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="android-status-bar">
+        <span class="android-status-dot" aria-hidden="true"></span>
+        <p id="android-status" role="status"></p>
+      </div>
+      <div id="android-setup-body" class="dialog-body android-setup-body">
+        <div id="android-consent" hidden>
+          <label class="form-check"><input class="form-check-input" id="android-license" type="checkbox"><span class="form-check-label">I accept the Android SDK License Agreement</span></label>
+          <button type="button" class="btn btn-link btn-sm" id="android-read-license">Read SDK license</button>
+          <label class="form-check" id="android-hypervisor-option" hidden><input class="form-check-input" id="android-hypervisor" type="checkbox" checked><span class="form-check-label">Enable Windows Hypervisor Platform if needed (UAC, restart)</span></label>
+          <small class="meta">Setup downloads several GB and creates one virtual phone.</small>
+        </div>
+        <pre id="android-setup-log" class="setup-log" aria-label="Android installer output" tabindex="0" hidden></pre>
+        <div id="android-controls" hidden>
+          <label class="form-label" for="android-device">Virtual device</label>
+          <select class="form-select" id="android-device" name="device" required></select>
+          <label class="form-label" for="android-url">Local QA URL <span>Optional</span></label>
+          <input class="form-control" id="android-url" name="url" type="url" maxlength="2048" placeholder="http://localhost:3000/" aria-describedby="android-url-help">
+          <small class="meta" id="android-url-help">Leave blank to open Chrome. The emulator uses its own network and browser data.</small>
+        </div>
+      </div>
+      <div id="android-viewer" class="android-viewer" data-zoom="fit" hidden>
+        <div class="android-stage-toolbar">
+          <span id="android-active-device" class="android-active-device"></span>
+          <div class="android-view-tools">
+            <label class="android-zoom-control" title="Screen zoom">
+              <i class="ti ti-zoom-in" aria-hidden="true"></i>
+              <select id="android-zoom" aria-label="Screen zoom">
+                <option value="fit">Fit</option>
+                <option value="125">125%</option>
+                <option value="150">150%</option>
+                <option value="200">200%</option>
+              </select>
+            </label>
+            <button class="icon-button" type="button" id="android-expand" aria-pressed="false" aria-label="Expand viewer" title="Expand viewer"><i class="ti ti-maximize" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div class="android-screen-scroll" tabindex="0" aria-label="Scrollable Android screen">
+          <div class="android-stage-content">
+            <div class="android-phone">
+              <div id="android-frame-placeholder" class="android-frame-placeholder"><i class="ti ti-device-mobile" aria-hidden="true"></i></div>
+              <img id="android-screen" alt="Live Android emulator screen" draggable="false" hidden>
+            </div>
+          </div>
+        </div>
+        <div class="android-control-bar">
+          <div class="android-navigation" role="group" aria-label="Android controls">
+            <button class="icon-button" type="button" data-android-key="back" aria-label="Back" title="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+            <button class="icon-button" type="button" data-android-key="home" aria-label="Home" title="Home"><i class="ti ti-home" aria-hidden="true"></i></button>
+            <button class="icon-button" type="button" data-android-key="backspace" aria-label="Delete" title="Delete"><i class="ti ti-backspace" aria-hidden="true"></i></button>
+            <button class="icon-button" type="button" data-android-key="enter" aria-label="Enter" title="Enter"><i class="ti ti-corner-down-left" aria-hidden="true"></i></button>
+          </div>
+          <div class="android-text-entry">
+            <i class="ti ti-keyboard" aria-hidden="true"></i>
+            <input id="android-type" aria-label="Type into Android" title="ASCII text. Use the Android keyboard for other characters." maxlength="200" placeholder="Type into Android…" autocomplete="off">
+            <button class="icon-button" type="button" id="android-send-text" aria-label="Send text" title="Send text"><i class="ti ti-arrow-up" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+      <footer class="android-launch-actions">
+        <button type="button" class="btn" id="android-phone-size" title="Quick desktop Chrome preview with this profile's connection" hidden><i class="ti ti-device-mobile" aria-hidden="true"></i> Phone-size Chrome</button>
+        <div class="android-launch-primary">
+          <button type="button" class="icon-button" id="android-refresh" aria-label="Refresh devices" title="Refresh devices" hidden><i class="ti ti-refresh" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-primary" id="android-setup" hidden><i class="ti ti-download" aria-hidden="true"></i> Install Android tools</button>
+          <button type="submit" class="btn btn-primary" id="android-launch" hidden><i class="ti ti-brand-chrome" aria-hidden="true"></i> Open Chrome</button>
+        </div>
+      </footer>
     </form>
   </dialog>
   <div id="toast" class="notice" role="status" hidden></div>

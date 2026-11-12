@@ -61,6 +61,7 @@ main { min-width: 0; }
 .profile-label, .actions { display: flex; align-items: center; gap: 8px; }
 .profile-label div { min-width: 0; }
 .profile-label strong { display: block; overflow-wrap: anywhere; max-width: 240px; }
+.profile-note { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .avatar-mark { width: 33px; height: 33px; font-size: 12px; font-weight: 720; }
 .meta { display: block; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 .running { color: #236448; font-weight: 670; }
@@ -80,7 +81,7 @@ dialog::backdrop { background: #10251d73; }
 .dialog-head { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
 .dialog-head h2 { font-size: 20px; letter-spacing: -.04em; }
 .dialog-head p { color: var(--muted); font-size: 12px; margin-top: 5px; }
-.dialog-body { display: grid; gap: 7px; }
+.dialog-body { display: grid; gap: 7px; max-height: calc(100vh - 175px); overflow-y: auto; }
 .dialog-body > .form-label:not(:first-child) { margin-top: 6px; }
 .form-label { margin-bottom: 0; font-size: 12px; }
 .field-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 11px; }
@@ -88,6 +89,118 @@ dialog::backdrop { background: #10251d73; }
 .field-grid input { margin-top: 5px; }
 .form-check { margin-top: 10px; font-size: 12px; }
 .form-error { color: #a43f35; font-size: 12px; }
+.advanced { margin-top: 6px; border: 1px solid var(--line); border-radius: 8px; background: #f7f9f5; }
+.advanced summary { cursor: pointer; padding: 9px 11px; font-size: 13px; font-weight: 650; }
+.advanced summary .ti { margin: 0 4px; }
+.advanced-fields { display: grid; gap: 6px; border-top: 1px solid var(--line); padding: 10px; }
+.advanced-fields .form-label { margin-top: 4px; }
+.advanced-fields textarea { resize: vertical; }
+.host-os { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+.host-os strong { color: var(--ink); }
+.qa-settings { display: grid; gap: 5px; margin-top: 9px; padding: 9px; border: 1px solid var(--line); border-radius: 7px; }
+.qa-settings legend { float: none; width: auto; padding: 0 4px; margin: 0; font-size: 12px; font-weight: 700; }
+#diagnostics { width: min(650px, calc(100vw - 30px)); }
+body:has(#android[open]) { overflow: hidden; }
+#android {
+  --android-chrome: #202622;
+  --android-line: #37423a;
+  --android-text: #edf3ed;
+  --android-muted: #adbbb0;
+  --android-accent: #cde9ae;
+  width: min(520px, calc(100vw - 28px));
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+  border: 1px solid #48564a;
+  border-radius: 18px;
+  background: var(--android-chrome);
+  color: var(--android-text);
+  color-scheme: dark;
+  box-shadow: 0 20px 85px #0b150c80;
+}
+#android::backdrop { background: #0e1c15a6; }
+#android-form { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; max-height: inherit; }
+#android.has-android-viewer { width: min(810px, calc(100vw - 32px)); height: min(860px, calc(100dvh - 40px)); }
+#android.has-android-viewer.is-expanded { width: calc(100vw - 24px); height: calc(100dvh - 24px); }
+.has-android-viewer #android-form { height: 100%; grid-template-rows: auto auto minmax(0, 1fr); }
+.android-header, .android-status-bar, .android-stage-toolbar, .android-control-bar, .android-launch-actions {
+  display: flex; align-items: center; gap: 12px; padding-inline: 18px;
+}
+.android-header, .android-stage-toolbar, .android-control-bar, .android-launch-actions { justify-content: space-between; }
+.android-header { min-height: 62px; padding-block: 9px; }
+.android-identity, .android-header-actions, .android-view-tools, .android-navigation, .android-launch-primary { display: flex; align-items: center; gap: 8px; }
+.android-identity { min-width: 0; gap: 11px; }
+.android-identity > div { min-width: 0; }
+.android-mark { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: var(--android-accent); color: #22331d; font-size: 22px; }
+#android-title { color: var(--android-text); font-size: 18px; line-height: 1.15; letter-spacing: -.035em; }
+#android-profile { margin-top: 3px; color: var(--android-muted); font-size: 11px; overflow-wrap: anywhere; }
+.android-status-bar { min-height: 33px; padding-block: 6px; gap: 8px; border-block: 1px solid var(--android-line); background: #191f1b; }
+.android-status-bar p { color: var(--android-muted); font-size: 11px; overflow-wrap: anywhere; }
+.android-status-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: #909c93; }
+.android-status-bar[data-state="live"] .android-status-dot { background: #b7dc92; }
+.android-status-bar:has(.failed) .android-status-dot, .android-status-bar[data-state="waiting"] .android-status-dot { background: #f1b979; }
+.android-status-bar .failed { color: #ffc1ad; }
+#android .icon-button, #android .btn {
+  min-height: 34px; border: 1px solid var(--android-line); border-radius: 8px;
+  background: #292f2b; color: var(--android-text); box-shadow: none;
+}
+#android .icon-button { width: 34px; flex: none; }
+#android .btn { padding: 5px 10px; font-size: 12px; }
+#android :is(.icon-button, .btn):hover { background: #39453b; color: #fff; }
+#android .btn-primary { background: var(--android-accent); border-color: transparent; color: #1f3219; }
+#android .btn-primary:hover { background: #e2f3cd; }
+#android .android-stop { background: #392b29; border-color: #67423c; color: #ffbeb3; white-space: nowrap; }
+#android .android-stop:hover { background: #553330; color: #ffe0db; }
+.android-setup-body { gap: 12px; max-height: none; padding: 16px 18px; }
+.android-setup-body:not(:has(> :not([hidden]))) { display: none; }
+#android-controls, #android-consent { padding: 14px; border: 1px solid var(--android-line); border-radius: 11px; background: #252d27; }
+#android-controls { display: grid; gap: 7px; }
+#android-controls > .form-label:not(:first-child) { margin-top: 7px; }
+#android-controls .form-label span { margin-left: 4px; color: var(--android-muted); font-size: 10px; font-weight: 450; }
+#android .form-control, #android .form-select { background-color: #191f1b; border-color: #455248; color: var(--android-text); box-shadow: none; }
+#android .form-select { appearance: auto; background-image: none; padding-right: 10px; }
+#android .form-control::placeholder, #android .meta { color: var(--android-muted); }
+#android-consent .form-check:first-child { margin-top: 0; }
+#android-consent .btn-link { padding: 0; border: 0; background: transparent; color: var(--android-accent); text-decoration: underline; }
+.android-launch-actions { min-height: 60px; flex-wrap: wrap; padding-block: 9px; border-top: 1px solid var(--android-line); }
+.android-launch-primary { margin-left: auto; }
+.has-android-viewer .android-launch-actions, .android-launch-actions:not(:has(button:not([hidden]))) { display: none; }
+.android-viewer { display: grid; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+.android-stage-toolbar { min-height: 44px; border-bottom: 1px solid var(--android-line); }
+.android-active-device { min-width: 0; overflow-wrap: anywhere; color: var(--android-muted); font-size: 11px; font-weight: 600; }
+.android-zoom-control { display: flex; align-items: center; gap: 5px; padding-left: 8px; border: 1px solid var(--android-line); border-radius: 8px; background: #292f2b; color: var(--android-muted); }
+.android-zoom-control select { height: 32px; padding: 0 5px 0 0; border: 0; border-radius: 7px; background: transparent; color: var(--android-text); font: inherit; font-size: 12px; }
+.android-screen-scroll {
+  container-type: size;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-color: #59695d #171d19;
+  background: radial-gradient(ellipse at 50% 20%, #28352c, transparent 75%), #151a17;
+}
+.android-stage-content { display: grid; place-items: center; min-width: max-content; min-height: 100%; padding: 12px; }
+.android-phone { padding: 3px; border: 1px solid #526459; border-radius: 15px; background: #0b0f0d; box-shadow: 0 10px 27px #0007; }
+.android-frame-placeholder { display: grid; place-items: center; height: max(40px, calc(100cqh - 32px)); aspect-ratio: 9 / 20; border-radius: 11px; background: #1b251f; color: #99ae9e; font-size: 36px; }
+#android-screen {
+  --android-fit: max(40px, calc(100cqh - 32px));
+  display: block; width: auto; height: auto; max-width: none; max-height: var(--android-fit);
+  border-radius: 11px; cursor: crosshair; user-select: none; touch-action: none;
+}
+.android-viewer[data-zoom="125"] #android-screen { max-height: calc(var(--android-fit) * 1.25); }
+.android-viewer[data-zoom="150"] #android-screen { max-height: calc(var(--android-fit) * 1.5); }
+.android-viewer[data-zoom="200"] #android-screen { max-height: calc(var(--android-fit) * 2); }
+.android-control-bar { min-height: 58px; padding-block: 8px; border-top: 1px solid var(--android-line); }
+.android-text-entry { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; max-width: 335px; padding: 3px 3px 3px 9px; border: 1px solid var(--android-line); border-radius: 9px; background: #171d19; color: var(--android-muted); }
+.android-text-entry input { flex: 1; width: 0; min-width: 0; border: 0; background: transparent; color: var(--android-text); font: inherit; font-size: 12px; }
+.android-text-entry input::placeholder { color: var(--android-muted); }
+#android .android-text-entry .icon-button { width: 29px; min-height: 29px; height: 29px; border: 0; background: var(--android-accent); color: #1f3219; }
+.setup-log { max-height: 240px; overflow: auto; margin: 0; padding: 12px; border: 1px solid var(--android-line); border-radius: 9px; background: #171d19; color: var(--android-text); font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .android-header, .android-status-bar, .android-stage-toolbar, .android-control-bar, .android-launch-actions { padding-inline: 10px; }
+  .android-navigation { gap: 4px; }
+  .android-text-entry > .ti { display: none; }
+}
+.diagnostics-grid { display: grid; grid-template-columns: minmax(120px, 28%) minmax(0, 1fr); margin: 5px 0 0; font-size: 12px; }
+.diagnostics-grid > * { border-top: 1px solid var(--line); padding: 7px 4px; margin: 0; overflow-wrap: anywhere; }
+.diagnostics-grid dt { color: var(--muted); }
 .dialog-footer { display: flex; justify-content: flex-end; gap: 7px; border-top: 1px solid var(--line); }
 .notice { position: fixed; bottom: 18px; right: 18px; z-index: 2; max-width: min(440px, calc(100vw - 36px)); background: #1e392e; color: #fff; padding: 11px 15px; border-radius: 9px; box-shadow: 0 5px 24px #12231732; font-size: 13px; }
 .notice.error { background: #852d2d; }
